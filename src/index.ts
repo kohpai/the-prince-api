@@ -2,8 +2,9 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 
 import express, { Request } from 'express'
-import * as https from 'https'
+import https from 'https'
 import { readFileSync } from 'fs'
+import cors from 'cors'
 import { postgraphile } from 'postgraphile'
 // import { run } from 'graphile-worker'
 
@@ -15,8 +16,16 @@ const app = express()
 const key = readFileSync('./creds/key.pem')
 const cert = readFileSync('./creds/cert.pem')
 
+app.use(
+    cors({
+        origin: [
+            'http://localhost:3000',
+            'https://the-prince-98130.web.app',
+            'https://the-prince-98130.firebaseapp.com',
+        ],
+    })
+)
 app.use('/graphql', checkAuth)
-
 app.use(
     postgraphile(config.postgraphile.APP_CONN, config.postgraphile.SCHEMA, {
         graphiql: true,
