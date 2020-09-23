@@ -25,7 +25,7 @@ app.use(
         ],
     })
 )
-app.use('/graphql', checkAuth)
+app.use(checkAuth)
 app.use(
     postgraphile(config.postgraphile.APP_CONN, config.postgraphile.SCHEMA, {
         graphiql: true,
