@@ -10,6 +10,7 @@ import { postgraphile } from 'postgraphile'
 
 // import taskList from './tasks'
 import { checkAuth } from './auth'
+import upload from './upload'
 import config from './config'
 
 const app = express()
@@ -38,6 +39,10 @@ app.use(
         }),
     })
 )
+
+app.post('/upload', upload.single('file'), (_, res) => {
+    res.status(200).json({ numPages: 0 })
+})
 
 https.createServer({ key, cert }, app).listen(+config.server.PORT, () => {
     console.log(`Server running at https://localhost:${config.server.PORT}`)
