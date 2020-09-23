@@ -16,6 +16,7 @@
         "firebase-admin": "^9.2.0",
         "graphile-worker": "^0.8.0",
         "multer": "^1.4.2",
+        "pdfjs-dist": "^2.5.207",
         "postgraphile": "^4.9.0"
     },
     "devDependencies": {
