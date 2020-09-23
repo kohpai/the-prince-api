@@ -13,6 +13,8 @@ import { checkAuth } from './auth'
 import upload from './upload'
 import config from './config'
 
+const pdfjs = require('pdfjs-dist/es5/build/pdf')
+
 const app = express()
 const key = readFileSync('./creds/key.pem')
 const cert = readFileSync('./creds/cert.pem')
@@ -40,8 +42,11 @@ app.use(
     })
 )
 
-app.post('/upload', upload.single('file'), (_, res) => {
-    res.status(200).json({ numPages: 0 })
+app.post('/upload', upload.single('file'), async (req, res) => {
+    const numPages = await pdfjs
+        .getDocument(`upload/${req.auth?.firebaseUid}/${req.file.originalname}`)
+        .promise.then((pdf: any) => pdf.numPages)
+    res.status(200).json({ numPages })
 })
 
 https.createServer({ key, cert }, app).listen(+config.server.PORT, () => {
