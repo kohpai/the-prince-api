@@ -33,6 +33,7 @@ CREATE TABLE public.print_job (
   id serial PRIMARY KEY,
   customer_id text NOT NULL REFERENCES public.customer (id) ON DELETE CASCADE,
   filename text NOT NULL,
+  page_range text,
   num_pages smallint NOT NULL,
   color color_mode NOT NULL,
   price money NOT NULL,
