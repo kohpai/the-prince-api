@@ -14,21 +14,26 @@ COMMENT ON FUNCTION public.new_customer () IS 'Add a new customer from Firebase 
 
 GRANT EXECUTE ON FUNCTION public.new_customer () TO authuser;
 
--- CREATE OR REPLACE FUNCTION public.current_player ()
---     RETURNS public.player
---     AS $$
---     SELECT
---         *
---     FROM
---         public.player
---     WHERE
---         firebase_uid = current_setting('jwt.claims.firebase_uid', TRUE)
--- $$
--- LANGUAGE SQL
--- STRICT
--- SECURITY DEFINER;
--- COMMENT ON FUNCTION public.current_player () IS 'Get current logged in player';
--- GRANT EXECUTE ON FUNCTION public.current_player () TO authuser;
+CREATE OR REPLACE FUNCTION public.top_up (order_id text, amount money)
+    RETURNS public.customer
+    AS $$
+    UPDATE
+        public.customer
+    SET
+        balance = balance + amount
+    WHERE
+        id = current_setting('jwt.claims.firebase_uid', TRUE)
+    RETURNING
+        *
+$$
+LANGUAGE SQL
+STRICT
+SECURITY DEFINER;
+
+COMMENT ON FUNCTION public.top_up (order_id text, amount money) IS 'Top up the customer''s balance';
+
+GRANT EXECUTE ON FUNCTION public.top_up (order_id text, amount money) TO authuser;
+
 -- -- REVOKE ALL ON FUNCTION public.register_player FROM authuser;
 -- CREATE OR REPLACE FUNCTION public.join_game (game_id uuid)
 --     RETURNS public.game
