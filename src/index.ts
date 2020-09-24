@@ -12,6 +12,7 @@ import { postgraphile } from 'postgraphile'
 import { checkAuth } from './auth'
 import upload from './upload'
 import config from './config'
+import ValidateTopUpPlugin from './wrappers/validateTopUp'
 
 const pdfjs = require('pdfjs-dist/es5/build/pdf')
 
@@ -31,6 +32,7 @@ app.use(
 app.use(checkAuth)
 app.use(
     postgraphile(config.postgraphile.APP_CONN, config.postgraphile.SCHEMA, {
+        appendPlugins: [ValidateTopUpPlugin],
         graphiql: true,
         enhanceGraphiql: true,
         watchPg: true,
