@@ -34,6 +34,32 @@ COMMENT ON FUNCTION public.top_up (order_id text, amount money) IS 'Top up the c
 
 GRANT EXECUTE ON FUNCTION public.top_up (order_id text, amount money) TO authuser;
 
+CREATE OR REPLACE FUNCTION public.current_user()
+    RETURNS public.customer
+    AS $$
+DECLARE
+    c public.customer;
+BEGIN
+    SELECT
+        * INTO c
+    FROM
+        public.customer
+    WHERE
+        id = current_setting('jwt.claims.firebase_uid', TRUE);
+    IF c IS NULL THEN
+        SELECT
+            public.new_customer () INTO c;
+    END IF;
+    RETURN c;
+END;
+$$
+LANGUAGE plpgsql
+SECURITY DEFINER;
+
+COMMENT ON FUNCTION public.current_user() IS 'Get current logged-in user';
+
+GRANT EXECUTE ON FUNCTION public.current_user() TO authuser;
+
 -- -- REVOKE ALL ON FUNCTION public.register_player FROM authuser;
 -- CREATE OR REPLACE FUNCTION public.join_game (game_id uuid)
 --     RETURNS public.game
