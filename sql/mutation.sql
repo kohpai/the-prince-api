@@ -105,7 +105,6 @@ CREATE OR REPLACE FUNCTION public.calc_job_price (pc print_config)
 DECLARE
     num_pages smallint;
     cpp money;
-    price money;
 BEGIN
     IF pc.page_range IS NOT NULL THEN
         SELECT
