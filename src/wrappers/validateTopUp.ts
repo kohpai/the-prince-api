@@ -2,6 +2,11 @@ import { makeWrapResolversPlugin } from 'graphile-utils'
 
 import config from '../config'
 
+interface Input {
+    orderId: string
+    amount: number
+}
+
 const paypal = require('@paypal/checkout-server-sdk')
 
 const paypalClient = new paypal.core.PayPalHttpClient(
@@ -20,8 +25,7 @@ function createCaptureRequest(orderId: string) {
 export default makeWrapResolversPlugin({
     Mutation: {
         topUp: async (resolve, source, args, context, resolveInfo) => {
-            const orderId: string = args.input.orderId
-            const amount: number = args.input.amount
+            const { orderId, amount }: Input = args.input
 
             if (amount < 5) {
                 throw new Error('Invalid amount, expected more than 5,00 EUR')
