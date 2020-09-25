@@ -24,7 +24,7 @@ CREATE TABLE public.customer (
 GRANT SELECT ON TABLE public.customer TO nologin, authuser;
 
 -- REVOKE ALL ON public.player FROM authuser;
-CREATE TYPE public.color_mode AS enum (
+CREATE TYPE public.color_mode_t AS enum (
   'COLOR',
   'BLACK'
 );
@@ -44,7 +44,7 @@ CREATE TABLE public.print_job (
 
 GRANT SELECT ON TABLE public.print_job TO nologin, authuser;
 
-CREATE TYPE print_config AS (
+CREATE TYPE print_config_t AS (
   color color_mode,
   page_range text,
   num_pages smallint,

@@ -99,36 +99,36 @@ $$
 LANGUAGE plpgsql
 STRICT;
 
-CREATE OR REPLACE FUNCTION public.calc_job_price (pc print_config)
+CREATE OR REPLACE FUNCTION public.calc_job_price (print_config print_config_t)
     RETURNS money
     AS $$
 DECLARE
     num_pages smallint;
     cpp money;
 BEGIN
-    IF pc.page_range IS NOT NULL THEN
+    IF print_config.page_range IS NOT NULL THEN
         SELECT
-            public.parse_page_range (pc.page_range) INTO num_pages;
+            public.parse_page_range (print_config.page_range) INTO num_pages;
     ELSE
-        num_pages := pc.num_pages;
+        num_pages := print_config.num_pages;
     END IF;
-    IF pc.color = 'BLACK' THEN
+    IF print_config.color = 'BLACK' THEN
         cpp := 0.08;
     ELSE
         cpp := 0.11;
     END IF;
-    RETURN num_pages * pc.num_copies * cpp;
+    RETURN num_pages * print_config.num_copies * cpp;
 END;
 $$
 LANGUAGE plpgsql
 STRICT;
 
-CREATE OR REPLACE FUNCTION public.submit_print_job (filename text, pc print_config)
+CREATE OR REPLACE FUNCTION public.submit_print_job (filename text, print_config print_config_t)
     RETURNS public.print_job
     AS $$
 DECLARE
     c public.customer;
-    iprice money;
+    price money;
     fuid text;
     job public.print_job;
 BEGIN
@@ -141,12 +141,12 @@ BEGIN
     WHERE
         id = fuid;
     SELECT
-        public.calc_job_price (pc) INTO iprice;
-    IF iprice > balance THEN
+        public.calc_job_price (print_config) INTO price;
+    IF price > balance THEN
         RAISE 'Balance is too low for this print job';
     END IF;
     INSERT INTO public.print_job (customer_id, filename, color, page_range, num_pages, num_copies, price)
-        VALUES (fuid, pc.color, pc.page_range, pc.num_pages, pc.num_copies, iprice)
+        VALUES (fuid, print_config.color, print_config.page_range, print_config.num_pages, print_config.num_copies, price)
     RETURNING
         * INTO job;
     RETURN job;
@@ -156,7 +156,7 @@ LANGUAGE plpgsql
 STRICT
 SECURITY DEFINER;
 
-COMMENT ON FUNCTION public.submit_print_job (filename text, pc print_config) IS 'Submit a print job';
+COMMENT ON FUNCTION public.submit_print_job (filename text, print_config print_config_t) IS 'Submit a print job';
 
-GRANT EXECUTE ON FUNCTION public.submit_print_job (filename text, pc print_config) TO authuser;
+GRANT EXECUTE ON FUNCTION public.submit_print_job (filename text, print_config print_config_t) TO authuser;
 
