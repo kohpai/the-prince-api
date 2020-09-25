@@ -13,8 +13,7 @@ import { checkAuth } from './auth'
 import upload from './upload'
 import config from './config'
 import ValidateTopUpPlugin from './wrappers/validateTopUp'
-
-const pdfjs = require('pdfjs-dist/es5/build/pdf')
+import { countPages } from './lib/pdf'
 
 const app = express()
 const key = readFileSync('./creds/key.pem')
@@ -45,9 +44,9 @@ app.use(
 )
 
 app.post('/upload', upload.single('file'), async (req, res) => {
-    const numPages = await pdfjs
-        .getDocument(`upload/${req.auth?.firebaseUid}/${req.file.originalname}`)
-        .promise.then((pdf: any) => pdf.numPages)
+    const numPages = await countPages(
+        `upload/${req.auth?.firebaseUid}/${req.file.originalname}`
+    )
     res.status(200).json({ numPages })
 })
 
