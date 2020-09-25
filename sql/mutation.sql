@@ -123,74 +123,40 @@ $$
 LANGUAGE plpgsql
 STRICT;
 
--- -- REVOKE ALL ON FUNCTION public.register_player FROM authuser;
--- CREATE OR REPLACE FUNCTION public.join_game (game_id uuid)
---     RETURNS public.game
---     AS $$
--- DECLARE
---     igame public.game;
---     player_id uuid;
--- BEGIN
---     IF game_id IS NOT NULL THEN
---         SELECT
---             * INTO igame
---         FROM
---             public.game
---         WHERE
---             id = game_id;
---         RETURN igame;
---     END IF;
---     SELECT
---         * INTO igame
---     FROM
---         public.game
---     WHERE
---         id = (
---             SELECT
---                 gp.game_id
---             FROM
---                 public.game_player AS gp
---             GROUP BY
---                 gp.game_id
---             HAVING
---                 count(*) < 3
---                 AND gp.game_id IN (
---                     SELECT
---                         id
---                     FROM
---                         public.game
---                     WHERE
---                         status = 'waiting')
---                 ORDER BY
---                     random()
---                 LIMIT 1);
---     SELECT
---         id INTO player_id
---     FROM
---         public.current_player ();
---     IF igame IS NOT NULL THEN
---         INSERT INTO public.game_player (game_id, player_id)
---             VALUES (igame.id, player_id);
---         PERFORM
---             graphile_worker.add_job ('create_player_subscription', json_build_object('game_id', igame.id, 'player_id', player_id));
---         RETURN igame;
---     END IF;
---     INSERT INTO public.game DEFAULT
---         VALUES
---         RETURNING
---             * INTO igame;
---     INSERT INTO public.game_player (game_id, player_id)
---         VALUES (igame.id, (
---                 SELECT
---                     id
---                 FROM
---                     public.current_player ()));
---     PERFORM
---         graphile_worker.add_job ('create_game_topic', json_build_object('game_id', igame.id, 'player_id', player_id));
---     RETURN igame;
--- END;
--- $$
--- LANGUAGE plpgsql
--- SECURITY DEFINER;
--- COMMENT ON FUNCTION public.join_game (uuid) IS 'Player joins a game room';
--- GRANT EXECUTE ON FUNCTION public.join_game (uuid) TO authuser;
+CREATE OR REPLACE FUNCTION public.submit_print_job (filename text, pc print_config)
+    RETURNS public.print_job
+    AS $$
+DECLARE
+    c public.customer;
+    iprice money;
+    fuid text;
+    job public.print_job;
+BEGIN
+    SELECT
+        current_setting('jwt.claims.firebase_uid', TRUE) INTO fuid;
+    SELECT
+        * INTO c
+    FROM
+        public.customer
+    WHERE
+        id = fuid;
+    SELECT
+        public.calc_job_price (pc) INTO iprice;
+    IF iprice > balance THEN
+        RAISE 'Balance is too low for this print job';
+    END IF;
+    INSERT INTO public.print_job (customer_id, filename, color, page_range, num_pages, num_copies, price)
+        VALUES (fuid, pc.color, pc.page_range, pc.num_pages, pc.num_copies, iprice)
+    RETURNING
+        * INTO job;
+    RETURN job;
+END;
+$$
+LANGUAGE plpgsql
+STRICT
+SECURITY DEFINER;
+
+COMMENT ON FUNCTION public.submit_print_job (filename text, pc print_config) IS 'Submit a print job';
+
+GRANT EXECUTE ON FUNCTION public.submit_print_job (filename text, pc print_config) TO authuser;
+
