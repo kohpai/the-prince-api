@@ -44,3 +44,10 @@ CREATE TABLE public.print_job (
 
 GRANT SELECT ON TABLE public.print_job TO nologin, authuser;
 
+CREATE TYPE print_config AS (
+  color color_mode,
+  page_range text,
+  num_pages smallint,
+  num_copies smallint
+);
+

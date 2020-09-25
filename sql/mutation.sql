@@ -99,6 +99,31 @@ $$
 LANGUAGE plpgsql
 STRICT;
 
+CREATE OR REPLACE FUNCTION public.calc_job_price (pc print_config)
+    RETURNS money
+    AS $$
+DECLARE
+    num_pages smallint;
+    cpp money;
+    price money;
+BEGIN
+    IF pc.page_range IS NOT NULL THEN
+        SELECT
+            public.parse_page_range (pc.page_range) INTO num_pages;
+    ELSE
+        num_pages := pc.num_pages;
+    END IF;
+    IF pc.color = 'BLACK' THEN
+        cpp := 0.08;
+    ELSE
+        cpp := 0.11;
+    END IF;
+    RETURN num_pages * pc.num_copies * cpp;
+END;
+$$
+LANGUAGE plpgsql
+STRICT;
+
 -- -- REVOKE ALL ON FUNCTION public.register_player FROM authuser;
 -- CREATE OR REPLACE FUNCTION public.join_game (game_id uuid)
 --     RETURNS public.game
