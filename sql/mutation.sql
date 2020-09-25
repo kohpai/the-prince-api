@@ -60,6 +60,45 @@ COMMENT ON FUNCTION public.current_user() IS 'Get current logged-in user';
 
 GRANT EXECUTE ON FUNCTION public.current_user() TO authuser;
 
+CREATE OR REPLACE FUNCTION public.parse_page_range (pr text)
+    RETURNS smallint
+    AS $$
+DECLARE
+    trimmed_pr text;
+    a_range text;
+    range_list text[];
+    num_pages smallint DEFAULT 0;
+    start_page smallint;
+    end_page smallint;
+BEGIN
+    SELECT
+        trim(BOTH ' ' FROM pr) INTO trimmed_pr;
+    IF trimmed_pr !~ '^([0-9]+(-[0-9]+)?)(,([0-9]+(-[0-9]+)?))*$' THEN
+        RAISE 'Invalid page range';
+    END IF;
+    FOREACH a_range IN ARRAY regexp_split_to_array(trimmed_pr, ',')
+    LOOP
+        SELECT
+            regexp_split_to_array(a_range, '-') INTO range_list;
+        IF array_length(range_list, 1) > 1 THEN
+            SELECT
+                to_number(range_list[1], '999') INTO start_page;
+            SELECT
+                to_number(range_list[2], '999') INTO end_page;
+            IF start_page >= end_page THEN
+                RAISE 'Invalid page range';
+            END IF;
+            num_pages := num_pages + end_page - start_page + 1;
+        ELSE
+            num_pages := num_pages + 1;
+        END IF;
+    END LOOP;
+    RETURN num_pages;
+END;
+$$
+LANGUAGE plpgsql
+STRICT;
+
 -- -- REVOKE ALL ON FUNCTION public.register_player FROM authuser;
 -- CREATE OR REPLACE FUNCTION public.join_game (game_id uuid)
 --     RETURNS public.game
