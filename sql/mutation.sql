@@ -133,20 +133,18 @@ DECLARE
     job public.print_job;
 BEGIN
     SELECT
-        current_setting('jwt.claims.firebase_uid', TRUE) INTO fuid;
-    SELECT
         * INTO c
     FROM
         public.customer
     WHERE
-        id = fuid;
+        id = current_setting('jwt.claims.firebase_uid', TRUE);
     SELECT
         public.calc_job_price (print_config) INTO price;
-    IF price > balance THEN
+    IF price > c.balance THEN
         RAISE 'Balance is too low for this print job';
     END IF;
     INSERT INTO public.print_job (customer_id, filename, color, page_range, num_pages, num_copies, price)
-        VALUES (fuid, print_config.color, print_config.page_range, print_config.num_pages, print_config.num_copies, price)
+        VALUES (c.id, filename, print_config.color, print_config.page_range, print_config.num_pages, print_config.num_copies, price)
     RETURNING
         * INTO job;
     RETURN job;
