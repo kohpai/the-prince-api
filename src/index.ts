@@ -50,8 +50,8 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     res.status(200).json({ numPages })
 })
 
-https.createServer({ key, cert }, app).listen(+config.server.PORT, () => {
-    console.log(`Server running at https://localhost:${config.server.PORT}`)
+app.listen(+config.server.PORT, () => {
+    console.log(`Server running at http://localhost:${config.server.PORT}`)
 })
 
 // run({
