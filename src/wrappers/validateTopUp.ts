@@ -22,7 +22,7 @@ function createCaptureRequest(orderId: string) {
     return request
 }
 
-export default makeWrapResolversPlugin({
+export const ValidateTopUpPlugin = makeWrapResolversPlugin({
     Mutation: {
         topUp: async (resolve, source, args, context, resolveInfo) => {
             const { orderId, amount }: Input = args.input

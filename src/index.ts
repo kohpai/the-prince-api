@@ -12,7 +12,7 @@ import { postgraphile } from 'postgraphile'
 import { checkAuth } from './auth'
 import upload from './upload'
 import config from './config'
-import ValidateTopUpPlugin from './wrappers/validateTopUp'
+import { ValidatePrintJobPlugin, ValidateTopUpPlugin } from './wrappers'
 import { countPages } from './lib/pdf'
 
 const app = express()
@@ -31,7 +31,7 @@ app.use(
 app.use(checkAuth)
 app.use(
     postgraphile(config.postgraphile.APP_CONN, config.postgraphile.SCHEMA, {
-        appendPlugins: [ValidateTopUpPlugin],
+        appendPlugins: [ValidateTopUpPlugin, ValidatePrintJobPlugin],
         graphiql: true,
         enhanceGraphiql: true,
         watchPg: true,
@@ -39,6 +39,9 @@ app.use(
         pgSettings: async (req: Request) => ({
             role: req.auth?.role,
             'jwt.claims.firebase_uid': `${req.auth?.firebaseUid}`,
+        }),
+        additionalGraphQLContextFromRequest: async (req, _) => ({
+            userId: req.auth?.firebaseUid,
         }),
     })
 )
