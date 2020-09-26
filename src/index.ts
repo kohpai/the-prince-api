@@ -4,6 +4,7 @@ dotenv.config()
 import express, { Request } from 'express'
 import cors from 'cors'
 import { postgraphile } from 'postgraphile'
+const PgSimplifyInflectorPlugin = require('@graphile-contrib/pg-simplify-inflector')
 // import { run } from 'graphile-worker'
 
 // import taskList from './tasks'
@@ -27,7 +28,11 @@ app.use(
 app.use(checkAuth)
 app.use(
     postgraphile(config.postgraphile.APP_CONN, config.postgraphile.SCHEMA, {
-        appendPlugins: [ValidateTopUpPlugin, ValidatePrintJobPlugin],
+        appendPlugins: [
+            PgSimplifyInflectorPlugin,
+            ValidateTopUpPlugin,
+            ValidatePrintJobPlugin,
+        ],
         graphiql: true,
         enhanceGraphiql: true,
         watchPg: true,
