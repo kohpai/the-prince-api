@@ -2,8 +2,6 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 
 import express, { Request } from 'express'
-import https from 'https'
-import { readFileSync } from 'fs'
 import cors from 'cors'
 import { postgraphile } from 'postgraphile'
 // import { run } from 'graphile-worker'
@@ -16,8 +14,6 @@ import { ValidatePrintJobPlugin, ValidateTopUpPlugin } from './wrappers'
 import { countPages } from './lib/pdf'
 
 const app = express()
-const key = readFileSync('./creds/key.pem')
-const cert = readFileSync('./creds/cert.pem')
 
 app.use(
     cors({
