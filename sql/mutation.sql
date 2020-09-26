@@ -112,7 +112,7 @@ BEGIN
     ELSE
         num_pages := print_config.num_pages;
     END IF;
-    IF print_config.color = 'BLACK' THEN
+    IF print_config.color_mode = 'BLACK' THEN
         cpp := 0.08;
     ELSE
         cpp := 0.11;
@@ -143,10 +143,14 @@ BEGIN
     IF price > c.balance THEN
         RAISE 'Balance is too low for this print job';
     END IF;
-    INSERT INTO public.print_job (customer_id, filename, color, page_range, num_pages, num_copies, price)
-        VALUES (c.id, filename, print_config.color, print_config.page_range, print_config.num_pages, print_config.num_copies, price)
+    INSERT INTO public.print_job (customer_id, filename, color_mode, page_range, num_pages, num_copies, price)
+        VALUES (c.id, filename, print_config.color_mode, print_config.page_range, print_config.num_pages, print_config.num_copies, price)
     RETURNING
         * INTO job;
+    UPDATE
+        public.customer
+    SET
+        balance = balance - price;
     RETURN job;
 END;
 $$

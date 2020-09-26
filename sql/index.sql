@@ -33,7 +33,7 @@ CREATE TABLE public.print_job (
   id serial PRIMARY KEY,
   customer_id text NOT NULL REFERENCES public.customer (id) ON DELETE CASCADE,
   filename text NOT NULL,
-  color color_mode NOT NULL,
+  color_mode color_mode_t NOT NULL,
   page_range text,
   num_pages smallint NOT NULL,
   num_copies smallint NOT NULL,
@@ -45,7 +45,7 @@ CREATE TABLE public.print_job (
 GRANT SELECT ON TABLE public.print_job TO nologin, authuser;
 
 CREATE TYPE print_config_t AS (
-  color color_mode,
+  color_mode color_mode_t,
   page_range text,
   num_pages smallint,
   num_copies smallint
