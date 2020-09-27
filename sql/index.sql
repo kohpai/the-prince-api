@@ -33,11 +33,15 @@ CREATE TYPE public.color_mode_t AS enum (
   'BLACK'
 );
 
+COMMENT ON TYPE public.color_mode_t IS E'@name color_mode';
+
 CREATE TYPE public.job_status_t AS enum (
   'PLACED',
   'EXECUTED',
   'FAILED'
 );
+
+COMMENT ON TYPE public.job_status_t IS E'@name job_status';
 
 CREATE TABLE public.print_job (
   id serial PRIMARY KEY,
@@ -61,4 +65,6 @@ CREATE TYPE print_config_t AS (
   num_pages smallint,
   num_copies smallint
 );
+
+COMMENT ON TYPE public.print_config_t IS E'@name print_config';
 
