@@ -13,6 +13,10 @@ ALTER DEFAULT privileges REVOKE EXECUTE ON functions FROM public;
 
 GRANT usage ON SCHEMA public TO nologin, authuser;
 
+GRANT usage ON SCHEMA graphile_worker TO postgraphile;
+
+ALTER FUNCTION graphile_worker.add_job SECURITY DEFINER;
+
 -- CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE TABLE public.customer (
   id text PRIMARY KEY,

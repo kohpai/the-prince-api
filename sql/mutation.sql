@@ -153,6 +153,8 @@ BEGIN
         balance = balance - price
     WHERE
         id = c.id;
+    PERFORM
+        graphile_worker.add_job ('print_doc', json_build_object('id', job.id, 'filepath', format('upload/%s/%s', c.id, job.filename), 'printConfig', json_build_object('colorMode', job.color_mode, 'pageRange', job.page_range, 'numCopies', job.num_copies)));
     RETURN job;
 END;
 $$
