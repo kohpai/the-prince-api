@@ -1,6 +1,6 @@
 import { makeWrapResolversPlugin } from 'graphile-utils'
 
-import config from '../config'
+import config from '../../../config'
 
 interface Input {
     orderId: string

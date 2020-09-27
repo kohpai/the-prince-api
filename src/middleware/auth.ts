@@ -1,19 +1,8 @@
-import * as admin from 'firebase-admin'
 import { Request, Response, NextFunction } from 'express'
 
-import config from '../config'
-// import * as rawServiceAccount from '../../creds/firebase_service_account.json'
+import admin from '../lib/firebase'
 
-// const serviceAccount = rawServiceAccount as admin.ServiceAccount
-
-admin.initializeApp({
-    credential: admin.credential.cert(
-        JSON.parse(config.firebase.SERVICE_ACCOUNT) /*|| serviceAccount*/
-    ),
-    databaseURL: config.firebase.DATABASE_URL,
-})
-
-export async function checkAuth(
+export default async function checkAuth(
     req: Request,
     res: Response,
     next: NextFunction

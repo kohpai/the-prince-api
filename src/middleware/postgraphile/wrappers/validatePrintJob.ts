@@ -1,6 +1,6 @@
 import { makeWrapResolversPlugin } from 'graphile-utils'
 
-import { countPages } from '../lib/pdf'
+import { countPages } from '../../../lib/pdf'
 
 export const ValidatePrintJobPlugin = makeWrapResolversPlugin({
     Mutation: {

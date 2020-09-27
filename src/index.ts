@@ -1,51 +1,22 @@
 import * as dotenv from 'dotenv'
 dotenv.config()
 
-import express, { Request } from 'express'
-import cors from 'cors'
-import { postgraphile } from 'postgraphile'
-const PgSimplifyInflectorPlugin = require('@graphile-contrib/pg-simplify-inflector')
+import express from 'express'
 import { run } from 'graphile-worker'
 
+import cors from './middleware/cors'
+import checkAuth from './middleware/auth'
+import postgraphile from './middleware/postgraphile'
+import upload from './middleware/upload'
 import taskList from './tasks'
-import { checkAuth } from './auth'
-import upload from './upload'
 import config from './config'
-import { ValidatePrintJobPlugin, ValidateTopUpPlugin } from './wrappers'
 import { countPages } from './lib/pdf'
 
 const app = express()
 
-app.use(
-    cors({
-        origin: [
-            'http://localhost:3000',
-            'https://the-prince-98130.web.app',
-            'https://the-prince-98130.firebaseapp.com',
-        ],
-    })
-)
+app.use(cors)
 app.use(checkAuth)
-app.use(
-    postgraphile(config.postgraphile.APP_CONN, config.postgraphile.SCHEMA, {
-        appendPlugins: [
-            PgSimplifyInflectorPlugin,
-            ValidateTopUpPlugin,
-            ValidatePrintJobPlugin,
-        ],
-        graphiql: true,
-        enhanceGraphiql: true,
-        watchPg: true,
-        ownerConnectionString: config.postgraphile.OWNER_CONN,
-        pgSettings: async (req: Request) => ({
-            role: req.auth?.role,
-            'jwt.claims.firebase_uid': `${req.auth?.firebaseUid}`,
-        }),
-        additionalGraphQLContextFromRequest: async (req, _) => ({
-            userId: req.auth?.firebaseUid,
-        }),
-    })
-)
+app.use(postgraphile)
 
 app.post('/upload', upload.single('file'), async (req, res) => {
     const numPages = await countPages(
