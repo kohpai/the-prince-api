@@ -150,7 +150,9 @@ BEGIN
     UPDATE
         public.customer
     SET
-        balance = balance - price;
+        balance = balance - price
+    WHERE
+        id = c.id;
     RETURN job;
 END;
 $$
