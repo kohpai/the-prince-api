@@ -29,6 +29,12 @@ CREATE TYPE public.color_mode_t AS enum (
   'BLACK'
 );
 
+CREATE TYPE public.job_status_t AS enum (
+  'PLACED',
+  'EXECUTED',
+  'FAILED'
+);
+
 CREATE TABLE public.print_job (
   id serial PRIMARY KEY,
   customer_id text NOT NULL REFERENCES public.customer (id) ON DELETE CASCADE,
@@ -38,6 +44,7 @@ CREATE TABLE public.print_job (
   num_pages smallint NOT NULL,
   num_copies smallint NOT NULL,
   price money NOT NULL,
+  status job_status_t NOT NULL DEFAULT 'PLACED',
   updated_at timestamptz NOT NULL DEFAULT now(),
   created_at timestamptz NOT NULL DEFAULT now()
 );
