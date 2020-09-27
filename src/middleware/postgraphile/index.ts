@@ -4,6 +4,7 @@ import PgSimplifyInflectorPlugin from '@graphile-contrib/pg-simplify-inflector'
 
 import config from '../../config'
 import { ValidatePrintJobPlugin, ValidateTopUpPlugin } from './wrappers'
+import { HealthCheckPlugin } from './extensions'
 
 const pg = postgraphile(
     config.postgraphile.APP_CONN,
@@ -13,6 +14,7 @@ const pg = postgraphile(
             PgSimplifyInflectorPlugin,
             ValidateTopUpPlugin,
             ValidatePrintJobPlugin,
+            HealthCheckPlugin,
         ],
         graphiql: true,
         enhanceGraphiql: true,
