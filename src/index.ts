@@ -5,9 +5,9 @@ import express, { Request } from 'express'
 import cors from 'cors'
 import { postgraphile } from 'postgraphile'
 const PgSimplifyInflectorPlugin = require('@graphile-contrib/pg-simplify-inflector')
-// import { run } from 'graphile-worker'
+import { run } from 'graphile-worker'
 
-// import taskList from './tasks'
+import taskList from './tasks'
 import { checkAuth } from './auth'
 import upload from './upload'
 import config from './config'
@@ -58,10 +58,10 @@ app.listen(+config.server.PORT, () => {
     console.log(`Server running at http://localhost:${config.server.PORT}`)
 })
 
-// run({
-//     connectionString: connStr,
-//     concurrency: 5,
-//     noHandleSignals: false,
-//     pollInterval: 1000,
-//     taskList,
-// })
+run({
+    connectionString: config.postgraphile.OWNER_CONN,
+    concurrency: 5,
+    noHandleSignals: false,
+    pollInterval: 1000,
+    taskList,
+})
