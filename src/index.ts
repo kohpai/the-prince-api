@@ -5,7 +5,7 @@ import express from 'express'
 import { run } from 'graphile-worker'
 
 import cors from './middleware/cors'
-import checkAuth from './middleware/auth'
+import auth from './middleware/auth'
 import postgraphile from './middleware/postgraphile'
 import upload from './middleware/upload'
 import taskList from './tasks'
@@ -15,7 +15,7 @@ import { countPages } from './lib/pdf'
 const app = express()
 
 app.use(cors)
-app.use(checkAuth)
+app.use(auth)
 app.use(postgraphile)
 
 app.post('/upload', upload.single('file'), async (req, res) => {
