@@ -112,9 +112,9 @@ BEGIN
 		num_pages := print_config.num_pages;
 	END IF;
 	IF print_config.color_mode = 'BLACK' THEN
-		cpp := 0.08;
+		cpp := 0.50;
 	ELSE
-		cpp := 0.11;
+		cpp := 0.80;
 	END IF;
 	RETURN num_pages * print_config.num_copies * cpp;
 END;
