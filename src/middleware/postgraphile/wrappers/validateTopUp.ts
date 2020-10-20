@@ -10,7 +10,7 @@ interface Input {
 const paypal = require('@paypal/checkout-server-sdk')
 
 const paypalClient = new paypal.core.PayPalHttpClient(
-    new paypal.core.SandboxEnvironment(
+    new paypal.core.LiveEnvironment(
         config.paypal.CLIENT_ID,
         config.paypal.CLIENT_SECRET
     )
