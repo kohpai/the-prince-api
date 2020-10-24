@@ -18,8 +18,6 @@ const pg = postgraphile(
         ],
         graphiql: true,
         enhanceGraphiql: true,
-        watchPg: true,
-        ownerConnectionString: config.postgraphile.OWNER_CONN,
         pgSettings: async (req: Request) => ({
             role: req.auth?.role,
             'jwt.claims.firebase_uid': `${req.auth?.firebaseUid}`,
