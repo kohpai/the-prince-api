@@ -42,7 +42,7 @@ AS
 $$
 UPDATE
 	public.customer
-SET balance = balance + amount
+SET balance = balance + $2
 WHERE id = current_setting('jwt.claims.firebase_uid', TRUE)
 RETURNING *
 $$
@@ -51,7 +51,6 @@ $$
 	SECURITY DEFINER;
 
 COMMENT ON FUNCTION public.top_up (order_id text, amount money) IS 'Top up the customer''s balance';
-
 GRANT EXECUTE ON FUNCTION public.top_up (order_id text, amount money) TO authuser;
 
 CREATE OR REPLACE FUNCTION public.parse_page_range(page_range text)
@@ -66,7 +65,7 @@ DECLARE
 	start_page smallint;
 	end_page   smallint;
 BEGIN
-	SELECT trim(BOTH ' ' FROM pr)
+	SELECT trim(BOTH ' ' FROM $1)
 	INTO trimmed_pr;
 	IF trimmed_pr !~ '^([0-9]+(-[0-9]+)?)(,([0-9]+(-[0-9]+)?))*$' THEN
 		RAISE 'Invalid page range';
@@ -102,18 +101,18 @@ DECLARE
 	num_pages smallint;
 	cpp       money;
 BEGIN
-	IF print_config.page_range IS NOT NULL THEN
-		SELECT public.parse_page_range(print_config.page_range)
+	IF $1.page_range IS NOT NULL THEN
+		SELECT public.parse_page_range($1.page_range)
 		INTO num_pages;
 	ELSE
-		num_pages := print_config.num_pages;
+		num_pages := $1.num_pages;
 	END IF;
-	IF print_config.color_mode = 'BLACK' THEN
+	IF $1.color_mode = 'BLACK' THEN
 		cpp := 0.50;
 	ELSE
 		cpp := 0.80;
 	END IF;
-	RETURN num_pages * print_config.num_copies * cpp;
+	RETURN num_pages * $1.num_copies * cpp;
 END;
 $$
 	LANGUAGE plpgsql
@@ -132,15 +131,15 @@ BEGIN
 	INTO c
 	FROM public.customer
 	WHERE id = current_setting('jwt.claims.firebase_uid', TRUE);
-	SELECT public.calc_job_price(print_config)
+	SELECT public.calc_job_price($2)
 	INTO price;
 	IF price > c.balance THEN
 		RAISE 'Balance is too low for this print job';
 	END IF;
 	INSERT INTO public.print_job (customer_id, filename, color_mode, page_range,
 								  num_pages, num_copies, price)
-	VALUES (c.id, filename, print_config.color_mode, print_config.page_range,
-			print_config.num_pages, print_config.num_copies, price)
+	VALUES (c.id, filename, $2.color_mode, $2.page_range,
+			$2.num_pages, $2.num_copies, price)
 	RETURNING * INTO job;
 	UPDATE
 		public.customer
