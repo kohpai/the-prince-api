@@ -93,6 +93,8 @@ $$
 	LANGUAGE plpgsql
 	STRICT;
 
+COMMENT ON FUNCTION public.parse_page_range(page_range text) IS E'@omit execute';
+
 CREATE OR REPLACE FUNCTION public.calc_job_price(print_config print_config_t)
 	RETURNS money
 AS
@@ -117,6 +119,8 @@ END;
 $$
 	LANGUAGE plpgsql
 	STRICT;
+
+COMMENT ON FUNCTION public.calc_job_price(print_config print_config_t) IS E'@omit execute';
 
 CREATE OR REPLACE FUNCTION public.submit_print_job(filename text, print_config print_config_t)
 	RETURNS public.print_job
