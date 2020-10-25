@@ -8,13 +8,17 @@ interface Input {
 }
 
 const paypal = require('@paypal/checkout-server-sdk')
-
-const paypalClient = new paypal.core.PayPalHttpClient(
-    new paypal.core.LiveEnvironment(
-        config.paypal.CLIENT_ID,
-        config.paypal.CLIENT_SECRET
-    )
-)
+const paypalEnv =
+    process.env.NODE_ENV === 'production'
+        ? new paypal.core.LiveEnvironment(
+              config.paypal.CLIENT_ID,
+              config.paypal.CLIENT_SECRET
+          )
+        : new paypal.core.SandboxEnvironment(
+              config.paypal.CLIENT_ID,
+              config.paypal.CLIENT_SECRET
+          )
+const paypalClient = new paypal.core.PayPalHttpClient(paypalEnv)
 
 function createCaptureRequest(orderId: string) {
     const request = new paypal.orders.OrdersCaptureRequest(orderId)
