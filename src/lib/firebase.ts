@@ -9,4 +9,5 @@ admin.initializeApp({
     databaseURL: config.firebase.DATABASE_URL,
 })
 
+export const remoteConfig = admin.remoteConfig()
 export default admin
