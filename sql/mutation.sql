@@ -100,8 +100,10 @@ CREATE OR REPLACE FUNCTION public.calc_job_price(print_config print_config_t)
 AS
 $$
 DECLARE
-    num_pages smallint;
-    cpp       money;
+    num_pages      smallint;
+    printing_pages smallint;
+    cpp            money;
+    total          money;
 BEGIN
     IF $1.page_range IS NOT NULL THEN
         SELECT public.parse_page_range($1.page_range)
@@ -110,11 +112,21 @@ BEGIN
         num_pages := $1.num_pages;
     END IF;
     IF $1.color_mode = 'BLACK' THEN
-        cpp := 0.50;
+        SELECT current_setting('price_config.black_cpp', TRUE)::money INTO cpp;
     ELSE
-        cpp := 0.80;
+        SELECT current_setting('price_config.color_cpp', TRUE)::money INTO cpp;
     END IF;
-    RETURN num_pages * $1.num_copies * cpp;
+
+    SELECT num_pages * $1.num_copies INTO printing_pages;
+    SELECT cpp * printing_pages INTO total;
+
+    IF printing_pages >= 10 THEN
+        RETURN total *
+               (1 - current_setting('price_config.discount_ratio',
+                                           TRUE)::real);
+    ELSE
+        RETURN total;
+    END IF;
 END;
 $$
     LANGUAGE plpgsql

@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
 
 import admin from '../lib/firebase'
+import { getPriceConfig } from '../config'
+
 
 export default async function checkAuth(
     req: Request,
@@ -18,6 +20,7 @@ export default async function checkAuth(
             const claims = await admin.auth().verifyIdToken(token)
             req.auth.role = 'authuser'
             req.auth.firebaseUid = claims.uid
+            req.priceConfig = await getPriceConfig()
         } catch (err) {
             res.status(403).send(JSON.stringify(err))
             return
