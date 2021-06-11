@@ -1,4 +1,4 @@
-const pdfjs = require('pdfjs-dist/es5/build/pdf')
+const pdfjs = require('pdfjs-dist/build/pdf')
 
 export async function countPages(path: string): Promise<number> {
     return pdfjs
