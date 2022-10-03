@@ -49,6 +49,8 @@ export async function printDoc(payload: unknown, helpers: Helpers) {
                 `${numCopies}`,
                 '-o',
                 'fit-to-page',
+                '-o',
+                'media=A4',
                 filepath,
             ])
         )
